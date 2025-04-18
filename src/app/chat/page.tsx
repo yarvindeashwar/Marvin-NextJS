@@ -55,9 +55,10 @@ export default function ChatPage() {
   ]);
 
   // Use Vercel's AI SDK for chat functionality
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
     api: '/api/chat', // This will be our API endpoint for the chat
     onFinish: (message) => {
+      console.log('Message completed:', message);
       // Check if this is a new conversation and add it to history if so
       if (messages.length <= 1) {
         const newSession: ChatSession = {
@@ -68,8 +69,16 @@ export default function ChatPage() {
         };
         setChatSessions([newSession, ...chatSessions]);
       }
+    },
+    onError: (error) => {
+      console.error('Chat error:', error);
     }
   });
+  
+  // Debug: Log messages when they change
+  useEffect(() => {
+    console.log('Current messages:', messages);
+  }, [messages]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -154,7 +163,7 @@ export default function ChatPage() {
               {messages.map((message) => {
                 // Parse message content to extract any chart data
                 const chartMatch = message.role === 'assistant' && 
-                  message.content.match(/\[CHART\](.*?)\[\/CHART\]/);
+                  message.content.match(/\[CHART:(.*?)\]/);
                 
                 // Generate chart data based on the chart title
                 let chartData;
@@ -194,7 +203,7 @@ export default function ChatPage() {
                 }
                 
                 // Clean content (remove chart markers)
-                const cleanContent = message.content.replace(/\[CHART\].*?\[\/CHART\]/g, '');
+                const cleanContent = message.content.replace(/\[CHART:.*?\]/g, '');
 
                 return (
                   <div 

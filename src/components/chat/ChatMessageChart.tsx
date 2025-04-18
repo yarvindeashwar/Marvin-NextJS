@@ -14,6 +14,8 @@ interface ChartData {
   xAxisData?: string[];
   seriesData?: number[];
   data?: { name: string; value: number }[];
+  name?: string;
+  value?: number;
 }
 
 interface ChatMessageChartProps {

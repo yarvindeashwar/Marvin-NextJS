@@ -34,7 +34,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning className={themeCookie === 'dark' ? 'dark' : ''}>
-      <body className={`${geistSans.variable} ${geistMono.variable} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased min-h-screen`}>
+      <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased min-h-screen`}>
         <ThemeProvider>
           <div className="flex h-screen overflow-hidden">
             {/* Sidebar component */}
