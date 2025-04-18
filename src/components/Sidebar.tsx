@@ -37,7 +37,7 @@ export default function Sidebar() {
         <div className="mb-6">
           <p className="px-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Tools</p>
           <div className="space-y-1">
-            <Link href="/ask" className="flex items-center gap-3 py-2 px-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white group transition-all">
+            <Link href="/chat" className="flex items-center gap-3 py-2 px-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white group transition-all">
               <MessageSquare className="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400" />
               <span>Ask Marvin</span>
             </Link>
