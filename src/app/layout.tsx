@@ -38,16 +38,16 @@ export default async function RootLayout({
         <ThemeProvider>
           <div className="min-h-screen flex flex-col md:flex-row">
             {/* Sidebar component */}
-            <div className="w-full md:w-64 md:flex-shrink-0 md:h-screen border-b md:border-r border-gray-200 dark:border-gray-800">
+            <div className="w-full md:w-64 md:flex-shrink-0 border-b md:border-r border-gray-200 dark:border-gray-800">
               <Sidebar />
             </div>
             
             {/* Main content area */}
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 min-h-screen">
               <header className="w-full flex justify-end p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200">
                 <ThemeToggle />
               </header>
-              <main className="flex-1 p-6 bg-white dark:bg-gray-900 transition-colors duration-200">
+              <main className="flex-1 p-6 bg-white dark:bg-gray-900 transition-colors duration-200 overflow-auto">
                 {children}
               </main>
             </div>
