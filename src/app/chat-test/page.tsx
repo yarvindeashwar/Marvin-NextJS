@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
-import { MessageSquare, Send } from 'lucide-react';
+import { MessageSquare, Send, ExternalLink } from 'lucide-react';
 import ChatMessageChart from '@/components/chat/ChatMessageChart';
+import ArtifactModal from '@/components/ArtifactModal';
 
 // Types for our test
 interface Message {
@@ -24,6 +25,8 @@ export default function ChatTestPage() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isArtifactModalOpen, setIsArtifactModalOpen] = useState(false);
+  const [currentArtifactId, setCurrentArtifactId] = useState('');
 
   // Function to handle form submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -54,7 +57,9 @@ export default function ChatTestPage() {
           "2. Technical issues with the payment processor on Tuesday (accounts for ~30%)\n" +
           "3. Increased competition in the market (accounts for ~10%)\n\n" +
           "[CHART:Revenue Trend]\n\n" +
-          "Would you like me to prepare a detailed report on this issue?";
+          "I've prepared a detailed analysis artifact with multiple visualizations to help you understand the revenue decline better.\n\n" +
+          "[ARTIFACT:revenue-analysis-" + Date.now() + "]\n\n" +
+          "You can view the full analysis by clicking the link below.";
           
         chartData = {
           id: 'chart-' + Date.now(),
@@ -144,9 +149,24 @@ export default function ChatTestPage() {
     }
   };
 
-  // Function to clean content (remove chart markers)
+  // Function to clean content (remove chart and artifact markers)
   const cleanContent = (content: string): string => {
-    return content.replace(/\[CHART:.*?\]/g, '');
+    return content
+      .replace(/\[CHART:.*?\]/g, '')
+      .replace(/\[ARTIFACT:.*?\]/g, '');
+  };
+  
+  // Function to check if message has an artifact
+  const hasArtifact = (message: Message): { hasArtifact: boolean, artifactId: string } => {
+    if (message.role !== 'assistant') return { hasArtifact: false, artifactId: '' };
+    
+    const artifactMatch = message.content.match(/\[ARTIFACT:(.*?)\]/i);
+    if (!artifactMatch) return { hasArtifact: false, artifactId: '' };
+    
+    return { 
+      hasArtifact: true, 
+      artifactId: artifactMatch[1] || Date.now().toString() 
+    };
   };
 
   return (
@@ -196,6 +216,22 @@ export default function ChatTestPage() {
                         onAddToDashboard={handleAddToDashboard} 
                       />
                     )}
+                    
+                    {/* Render artifact link if present */}
+                    {hasArtifact(message).hasArtifact && (
+                      <div className="mt-4 border-t border-gray-700 pt-3">
+                        <button
+                          onClick={() => {
+                            setCurrentArtifactId(hasArtifact(message).artifactId);
+                            setIsArtifactModalOpen(true);
+                          }}
+                          className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          View Analysis Artifact
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -232,6 +268,13 @@ export default function ChatTestPage() {
           </button>
         </div>
       </form>
+
+      {/* Artifact Modal */}
+      <ArtifactModal 
+        isOpen={isArtifactModalOpen}
+        onClose={() => setIsArtifactModalOpen(false)}
+        artifactId={currentArtifactId}
+      />
     </div>
   );
 }

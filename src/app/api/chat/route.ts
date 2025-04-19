@@ -15,6 +15,7 @@ async function mockAIResponse(messages: Message[]): Promise<Response> {
       "2. Technical issues with the payment processor on Tuesday (accounts for ~30%)\n" +
       "3. Increased competition in the market (accounts for ~10%)\n\n" +
       "[CHART:Revenue Trend]\n\n" +
+      "[ARTIFACT:revenue-analysis]\n\n" +
       "Would you like me to prepare a detailed report on this issue?";
   } else if (lastMessage.content.toLowerCase().includes('marketing') || 
              lastMessage.content.toLowerCase().includes('campaign')) {

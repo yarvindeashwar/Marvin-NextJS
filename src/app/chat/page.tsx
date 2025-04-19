@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useChat } from 'ai/react';
-import { MessageSquare, Send, ChevronDown, ChevronUp, History } from 'lucide-react';
+import { MessageSquare, Send, ChevronDown, ChevronUp, History, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import ChatMessageChart from '@/components/chat/ChatMessageChart';
+import ArtifactDrawer from '@/components/ArtifactDrawer';
 
 // Types for our chat interface
 interface ChatMessage {
@@ -13,6 +14,8 @@ interface ChatMessage {
   content: string;
   charts?: ChartData[];
   timestamp: Date;
+  hasArtifact?: boolean;
+  artifactId?: string;
 }
 
 interface ChartData {
@@ -34,6 +37,9 @@ interface ChatSession {
 export default function ChatPage() {
   // State for chat history panel
   const [showHistory, setShowHistory] = useState(false);
+  const [isArtifactModalOpen, setIsArtifactModalOpen] = useState(false);
+  const [currentArtifactId, setCurrentArtifactId] = useState('');
+  const [isArtifactAutoOpened, setIsArtifactAutoOpened] = useState(false);
   
   // Reference to message container for auto-scrolling
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -68,6 +74,15 @@ export default function ChatPage() {
           timestamp: new Date()
         };
         setChatSessions([newSession, ...chatSessions]);
+      }
+      
+      // Check if the message contains an artifact marker and automatically open it
+      const artifactMatch = message.content.match(/\[ARTIFACT:(.*?)\]/i);
+      if (artifactMatch) {
+        const artifactId = artifactMatch[1] || Date.now().toString();
+        setCurrentArtifactId(artifactId);
+        setIsArtifactAutoOpened(true);
+        setIsArtifactModalOpen(true);
       }
     },
     onError: (error) => {
@@ -202,8 +217,20 @@ export default function ChatPage() {
                   }
                 }
                 
-                // Clean content (remove chart markers)
-                const cleanContent = message.content.replace(/\[CHART:.*?\]/g, '');
+                // Check if the message contains an artifact marker
+                const artifactMatch = message.content.match(/\[ARTIFACT:(.*?)\]/i);
+                let hasArtifact = false;
+                let artifactId = '';
+                
+                if (artifactMatch) {
+                  hasArtifact = true;
+                  artifactId = artifactMatch[1] || Date.now().toString();
+                }
+                
+                // Clean content (remove chart and artifact markers)
+                const cleanContent = message.content
+                  .replace(/\[CHART:.*?\]/g, '')
+                  .replace(/\[ARTIFACT:.*?\]/g, '');
 
                 return (
                   <div 
@@ -225,6 +252,23 @@ export default function ChatPage() {
                           chart={chartData} 
                           onAddToDashboard={handleAddToDashboard} 
                         />
+                      )}
+                      
+                      {/* Render artifact link if present */}
+                      {hasArtifact && message.role === 'assistant' && (
+                        <div className="mt-4 border-t border-gray-700 pt-3">
+                          <button
+                            onClick={() => {
+                              setCurrentArtifactId(artifactId);
+                              setIsArtifactAutoOpened(false);
+                              setIsArtifactModalOpen(true);
+                            }}
+                            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            View Analysis Artifact
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -264,6 +308,14 @@ export default function ChatPage() {
           </div>
         </form>
       </div>
+
+      {/* Artifact Drawer */}
+      <ArtifactDrawer 
+        isOpen={isArtifactModalOpen}
+        onClose={() => setIsArtifactModalOpen(false)}
+        artifactId={currentArtifactId}
+        autoOpened={isArtifactAutoOpened}
+      />
     </div>
   );
 }
